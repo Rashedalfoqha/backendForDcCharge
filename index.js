@@ -24,7 +24,7 @@ app.use(limiter);
 app.use(
   mongoSanitize({
     replaceWith: '_',
-    checkQuery: false,  // Avoid error by skipping query sanitization
+    checkQuery: false, 
   })
 );
 
