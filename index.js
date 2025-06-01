@@ -1,5 +1,4 @@
 const express = require("express");
-
 const cors = require("cors");
 require("dotenv").config();
 const path = require("path");
@@ -12,18 +11,20 @@ require("./models/dataBase");
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 
-// Middleware
-app.use(express.urlencoded({ extended: true }));
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   message: "Too many requests from this IP, please try again later.",
 });
+app.use(limiter);
+
 app.use(
   mongoSanitize({
     replaceWith: '_',
+    checkQuery: false,  // Avoid error by skipping query sanitization
   })
 );
 
@@ -43,6 +44,7 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: "Internal server error" });
 });
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
