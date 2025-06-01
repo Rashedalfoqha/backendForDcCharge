@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const path = require("path");
-const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
@@ -22,7 +21,6 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-app.use(mongoSanitize());
 
 
 // Serve uploaded images
