@@ -21,7 +21,11 @@ const limiter = rateLimit({
   max: 100,
   message: "Too many requests from this IP, please try again later.",
 });
-app.use(mongoSanitize());
+app.use(
+  mongoSanitize({
+    replaceWith: '_',
+  })
+);
 
 // Serve uploaded images
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
