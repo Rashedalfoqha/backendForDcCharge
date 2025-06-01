@@ -2,9 +2,10 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const path = require("path");
+const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
-const mongoSanitize = require("express-mongo-sanitize");
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 require("./models/dataBase");
@@ -12,7 +13,7 @@ require("./models/dataBase");
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(helmet());
+app.use(helmet()); 
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -21,16 +22,12 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-app.use(
-  mongoSanitize({
-    replaceWith: '_',
-    checkQuery: false, 
-  })
-);
+app.use(mongoSanitize());
+
 
 // Serve uploaded images
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
+  
 app.use("/api/post", require("./routes/postNews"));
 app.use("/api/services", require("./routes/productServices"));
 app.use("/api/page-content", require("./routes/pageContentRoutes"));
