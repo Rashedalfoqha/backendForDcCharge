@@ -2,18 +2,21 @@ const Customer = require('../models/Customers');
 
 const createCustomer = async (req, res) => {
   try {
-    const { title, description, image } = req.body;
+    const { title, description, images } = req.body;
 
-    // تحقق وجود اللغتين ووجود مصفوفة الصور
+    // تحقق من وجود اللغتين وعناوين الصور وشكل الصور (مصفوفة كائنات)
     if (
       !title || !title.en || !title.ar ||
       !description || !description.en || !description.ar ||
-      !Array.isArray(image) || image.length === 0
+      !Array.isArray(images) || images.length === 0 ||
+      !images.every(img => img.url && img.caption && img.caption.en && img.caption.ar)
     ) {
-      return res.status(400).json({ message: "Please provide both English and Arabic for title and description, and at least one image." });
+      return res.status(400).json({ 
+        message: "Please provide both English and Arabic for title and description, and images array with url and captions in both languages." 
+      });
     }
 
-    const newCustomer = new Customer({ title, description, image });
+    const newCustomer = new Customer({ title, description, images });
     await newCustomer.save();
     res.status(201).json({ message: "Customer created successfully", customer: newCustomer });
   } catch (error) {
@@ -45,20 +48,22 @@ const deleteCustomer = async (req, res) => {
 
 const updateCustomer = async (req, res) => {
   try {
-    const { title, description, image } = req.body;
+    const { title, description, images } = req.body;
 
-    // تحقق بسيط كما في الإنشاء
     if (
       !title || !title.en || !title.ar ||
       !description || !description.en || !description.ar ||
-      !Array.isArray(image) || image.length === 0
+      !Array.isArray(images) || images.length === 0 ||
+      !images.every(img => img.url && img.caption && img.caption.en && img.caption.ar)
     ) {
-      return res.status(400).json({ message: "Please provide both English and Arabic for title and description, and at least one image." });
+      return res.status(400).json({ 
+        message: "Please provide both English and Arabic for title and description, and images array with url and captions in both languages." 
+      });
     }
 
     const updatedCustomer = await Customer.findByIdAndUpdate(
       req.params.id,
-      { title, description, image },
+      { title, description, images },
       { new: true }
     );
 
@@ -72,20 +77,24 @@ const updateCustomer = async (req, res) => {
   }
 };
 
+// تعديل دالة تحديث الصور لتتعامل مع كائنات الصور (url + caption)
 const updateCustomerImages = async (req, res) => {
   try {
-    const { imageToRemove, newImage } = req.body;
+    const { imageToRemoveUrl, newImage } = req.body; 
+    // imageToRemoveUrl: رابط الصورة التي نريد حذفها
+    // newImage: كائن الصورة الجديد { url, caption: { en, ar } }
+
     const customerDoc = await Customer.findById(req.params.id);
     if (!customerDoc) {
       return res.status(404).json({ message: "Customer not found" });
     }
 
-    // إزالة الصورة المحددة
-    customerDoc.image = customerDoc.image.filter(img => img !== imageToRemove);
+    // إزالة الصورة حسب الرابط
+    customerDoc.images = customerDoc.images.filter(img => img.url !== imageToRemoveUrl);
 
-    // إضافة الصورة الجديدة إذا موجودة
-    if (newImage) {
-      customerDoc.image.push(newImage);
+    // إضافة الصورة الجديدة إذا موجودة وصحيحة
+    if (newImage && newImage.url && newImage.caption && newImage.caption.en && newImage.caption.ar) {
+      customerDoc.images.push(newImage);
     }
 
     await customerDoc.save();
