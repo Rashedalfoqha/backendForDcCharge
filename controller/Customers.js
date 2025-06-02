@@ -4,7 +4,6 @@ const createCustomer = async (req, res) => {
   try {
     const { title, description, images } = req.body;
 
-    // تحقق من وجود اللغتين وعناوين الصور وشكل الصور (مصفوفة كائنات)
     if (
       !title || !title.en || !title.ar ||
       !description || !description.en || !description.ar ||

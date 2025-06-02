@@ -1,16 +1,8 @@
 const postModel = require('../models/postNewsSchema');
-const path = require('path');
 
-// @desc Create new post
 const createPost = async (req, res) => {
   try {
-    const { language, title, body, publishedDate, status, category } = req.body;
-
-    // Handle image upload
-    let imageUrl = null;
-    if (req.file) {
-      imageUrl = `/uploads/${req.file.filename}`;
-    }
+    const { language, title, body, publishedDate, status, category, imageUrl } = req.body;
 
     const newPost = new postModel({
       language,
@@ -19,7 +11,7 @@ const createPost = async (req, res) => {
       publishedDate,
       status,
       category,
-      imageUrl
+      imageUrl: imageUrl || null,
     });
 
     await newPost.save();
@@ -30,7 +22,6 @@ const createPost = async (req, res) => {
   }
 };
 
-// @desc Get all posts
 const getAllPosts = async (req, res) => {
   try {
     const posts = await postModel.find().sort({ createdAt: -1 });
@@ -41,7 +32,6 @@ const getAllPosts = async (req, res) => {
   }
 };
 
-// @desc Get post by ID
 const getPostById = async (req, res) => {
   try {
     const post = await postModel.findById(req.params.id);
@@ -55,15 +45,9 @@ const getPostById = async (req, res) => {
   }
 };
 
-// @desc Update post
 const updatePost = async (req, res) => {
   try {
-    const { language, title, body, publishedDate, status, category } = req.body;
-
-    let imageUrl = req.body.imageUrl || null;
-    if (req.file) {
-      imageUrl = `/uploads/${req.file.filename}`;
-    }
+    const { language, title, body, publishedDate, status, category, imageUrl } = req.body;
 
     const updatedPost = await postModel.findByIdAndUpdate(
       req.params.id,
@@ -74,7 +58,7 @@ const updatePost = async (req, res) => {
         publishedDate,
         status,
         category,
-        imageUrl
+        imageUrl: imageUrl || null,
       },
       { new: true }
     );
@@ -90,7 +74,6 @@ const updatePost = async (req, res) => {
   }
 };
 
-// @desc Delete post
 const deletePost = async (req, res) => {
   try {
     const deletedPost = await postModel.findByIdAndDelete(req.params.id);
@@ -109,5 +92,5 @@ module.exports = {
   getAllPosts,
   getPostById,
   updatePost,
-  deletePost
+  deletePost,
 };

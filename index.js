@@ -5,6 +5,7 @@ require("dotenv").config();
 const path = require("path");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const mongoSanitize = require("express-mongo-sanitize");
 const app = express();
 const PORT = process.env.PORT || 5000;
 require("./models/dataBase");
@@ -20,6 +21,7 @@ const limiter = rateLimit({
   max: 100,
   message: "Too many requests from this IP, please try again later.",
 });
+app.use(mongoSanitize());
 
 // Serve uploaded images
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
