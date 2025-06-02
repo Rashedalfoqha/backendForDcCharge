@@ -4,7 +4,6 @@ const createBrand = async (req, res) => {
   try {
     const { title, description, image } = req.body;
 
-    // تحقق وجود en و ar في title و description، وصورة موجودة
     if (
       !title || !title.en || !title.ar ||
       !description || !description.en || !description.ar ||
