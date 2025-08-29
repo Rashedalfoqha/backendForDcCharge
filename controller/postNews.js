@@ -24,8 +24,29 @@ const createPost = async (req, res) => {
 
 const getAllPosts = async (req, res) => {
   try {
-    const posts = await postModel.find().sort({ createdAt: -1 });
-    res.status(200).json(posts);
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await Promise.all([
+      postModel
+        .find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select('title imageUrl category publishedDate createdAt'),
+      postModel.countDocuments(),
+    ]);
+
+    const hasMore = skip + items.length < total;
+
+    res.status(200).json({
+      items,
+      page,
+      limit,
+      total,
+      hasMore,
+    });
   } catch (error) {
     console.error('Fetch All Posts Error:', error);
     res.status(500).json({ message: 'Error fetching posts', error });
