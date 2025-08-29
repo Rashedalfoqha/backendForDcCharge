@@ -5,7 +5,7 @@ const compression = require("compression");
 require("dotenv").config();
 const path = require("path");
 const helmet = require("helmet");
-const rateLimit = require("express-rate-limit");
+// const rateLimit = require("express-rate-limit");
 const app = express();
 const PORT = process.env.PORT || 5000;
 require("./models/dataBase");
@@ -16,15 +16,15 @@ app.use(helmet());
 app.use(compression());
 
 // Middleware
-app.use(express.urlencoded({ extended: true }));
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: "Too many requests from this IP, please try again later.",
-});
+// app.use(express.urlencoded({ extended: true }));
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000,
+//   max: 100,
+//   message: "Too many requests from this IP, please try again later.",
+// });
 
 // Serve uploaded images
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Basic cache headers for static assets and GET API responses
 app.use((req, res, next) => {
