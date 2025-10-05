@@ -3,7 +3,7 @@ const PageContent = require('../models/pageContent');
 // Get content by page and language
 exports.getPageContent = async (req, res) => {
     const { page, lang } = req.params;
-    const content = await PageContent.findOne({ page, language: lang });
+    const content = await PageContent.findOne({ page, language: lang }).lean();
     if (!content) return res.status(404).json({ message: 'Content not found' });
     res.json(content);
 };
@@ -29,7 +29,7 @@ exports.upsertPageContent = async (req, res) => {
         new: true,
         setDefaultsOnInsert: true
       }
-    );
+    ).lean();
 
     res.status(200).json(updated);
   } catch (error) {

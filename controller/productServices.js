@@ -35,7 +35,11 @@ const createService = async (req, res) => {
 // @desc Get all services
 const getAllServices = async (req, res) => {
   try {
-    const services = await serviceModel.find().sort({ createdAt: -1 });
+    const services = await serviceModel
+      .find()
+      .sort({ createdAt: -1 })
+      .select('language title description imageUrl createdAt')
+      .lean();
     res.status(200).json(services);
   } catch (error) {
     console.error('Fetch All Services Error:', error);
@@ -46,7 +50,7 @@ const getAllServices = async (req, res) => {
 // @desc Get a service by ID
 const getServiceById = async (req, res) => {
   try {
-    const service = await serviceModel.findById(req.params.id);
+    const service = await serviceModel.findById(req.params.id).lean();
     if (!service) {
       return res.status(404).json({ message: 'Service not found' });
     }

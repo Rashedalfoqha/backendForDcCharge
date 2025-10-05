@@ -12,5 +12,9 @@ const brandSchema  = new mongoose.Schema({
     image : { type: mongoose.Schema.Types.Mixed, required: true },
 });
 
+// Optional: index titles to speed up listings/searches by title
+brandSchema.index({ 'title.en': 1 });
+brandSchema.index({ 'title.ar': 1 });
+
 const Brand = mongoose.model('Brand', brandSchema);
 module.exports = Brand;

@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 require("./models/dataBase");
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 app.use(helmet());
 app.use(compression());
 
@@ -24,7 +24,10 @@ app.use(compression());
 // });
 
 // Serve uploaded images
-// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
+  maxAge: '365d',
+  immutable: true,
+}));
 
 // Basic cache headers for static assets and GET API responses
 app.use((req, res, next) => {

@@ -23,7 +23,7 @@ const createBrand = async (req, res) => {
 
 const getAllBrands = async (req, res) => {
   try {
-    const brands = await Brand.find();
+    const brands = await Brand.find().select('title description image').lean();
     res.status(200).json({ brands });
   } catch (error) {
     res.status(500).json({ message: "Error fetching brands", error: error.message });

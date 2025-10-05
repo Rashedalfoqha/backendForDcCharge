@@ -34,8 +34,9 @@ const getAllPosts = async (req, res) => {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .select('title imageUrl category publishedDate createdAt'),
-      postModel.countDocuments(),
+        .select('title imageUrl category publishedDate createdAt')
+        .lean(),
+      postModel.estimatedDocumentCount(),
     ]);
 
     const hasMore = skip + items.length < total;
@@ -55,7 +56,7 @@ const getAllPosts = async (req, res) => {
 
 const getPostById = async (req, res) => {
   try {
-    const post = await postModel.findById(req.params.id);
+    const post = await postModel.findById(req.params.id).lean();
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });
     }

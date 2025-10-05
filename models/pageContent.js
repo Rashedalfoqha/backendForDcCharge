@@ -18,11 +18,14 @@ features: {
 }}, { _id: false }); 
 
 const pageContentSchema = new mongoose.Schema({
-  page: { type: String, required: true },
-  language: { type: String, enum: ['en', 'ar'], required: true },
+  page: { type: String, required: true, index: true },
+  language: { type: String, enum: ['en', 'ar'], required: true, index: true },
   title: String,
   sections: [sectionSchema],
   lastUpdated: { type: Date, default: Date.now }
 }, { timestamps: true });
+
+// Compound index to speed up findOne({ page, language })
+pageContentSchema.index({ page: 1, language: 1 }, { unique: true });
 
 module.exports = mongoose.model('PageContent', pageContentSchema);
