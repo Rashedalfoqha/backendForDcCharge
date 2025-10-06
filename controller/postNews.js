@@ -28,7 +28,7 @@ const getAllPosts = async (req, res) => {
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
     const skip = (page - 1) * limit;
 
-    const [items, total] = await Promise.all([
+    const [items, total, latestItem] = await Promise.all([
       postModel
         .find()
         .sort({ createdAt: -1 })
@@ -37,10 +37,17 @@ const getAllPosts = async (req, res) => {
         .select('title imageUrl category publishedDate createdAt')
         .lean(),
       postModel.estimatedDocumentCount(),
+      postModel.findOne().sort({ updatedAt: -1 }).select('updatedAt').lean(),
     ]);
 
     const hasMore = skip + items.length < total;
 
+    const lastModified = latestItem?.updatedAt || new Date();
+    const ifModifiedSince = req.headers['if-modified-since'];
+    if (ifModifiedSince && new Date(ifModifiedSince) >= new Date(lastModified)) {
+      return res.status(304).end();
+    }
+    res.setHeader('Last-Modified', new Date(lastModified).toUTCString());
     res.status(200).json({
       items,
       page,
@@ -60,6 +67,12 @@ const getPostById = async (req, res) => {
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });
     }
+    const etag = 'W/"' + (post.updatedAt?.getTime?.() || 0) + '-' + (post._id?.toString?.() || '') + '"';
+    const ifNoneMatch = req.headers['if-none-match'];
+    if (ifNoneMatch && ifNoneMatch === etag) {
+      return res.status(304).end();
+    }
+    res.setHeader('ETag', etag);
     res.status(200).json(post);
   } catch (error) {
     console.error('Fetch Post By ID Error:', error);

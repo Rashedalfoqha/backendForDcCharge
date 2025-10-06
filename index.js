@@ -5,23 +5,28 @@ const compression = require("compression");
 require("dotenv").config();
 const path = require("path");
 const helmet = require("helmet");
-// const rateLimit = require("express-rate-limit");
+const rateLimit = require("express-rate-limit");
+const mongoSanitize = require("express-mongo-sanitize");
 const app = express();
+app.set('etag', 'strong');
 const PORT = process.env.PORT || 5000;
 require("./models/dataBase");
 
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 app.use(helmet());
-app.use(compression());
+app.use(compression({ level: 6 }));
+app.use(mongoSanitize());
 
 // Middleware
 // app.use(express.urlencoded({ extended: true }));
-// const limiter = rateLimit({
-//   windowMs: 15 * 60 * 1000,
-//   max: 100,
-//   message: "Too many requests from this IP, please try again later.",
-// });
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 300,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+});
+app.use(limiter);
 
 // Serve uploaded images
 app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
@@ -38,6 +43,7 @@ app.use((req, res, next) => {
   // Cache GET API responses briefly to relieve load (clients still control freshness)
   if (req.method === 'GET' && req.url.startsWith('/api/')) {
     res.setHeader('Cache-Control', 'public, max-age=60');
+    res.setHeader('Vary', 'Accept-Encoding');
   }
   next();
 });
