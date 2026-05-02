@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const mongoUri = process.env.DB_URL;
 
+if (!mongoUri) {
+  console.error("❌ ERROR: DB_URL is NOT defined in environment variables!");
+} else {
+  console.log("✅ DB_URL is defined. Attempting to connect...");
+}
+
 // Connection pool and performance-friendly defaults
 const mongooseOptions = {
   maxPoolSize: parseInt(process.env.MONGO_MAX_POOL_SIZE || '20', 10),
