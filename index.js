@@ -16,7 +16,16 @@ require("./models/dataBase");
 
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:", "http:"],
+      connectSrc: ["'self'", "https:", "http:"],
+    },
+  },
+}));
 app.use(compression({ level: 6 }));
 
 // custom sanitize: only body and params; do not touch req.query (read-only in Express 5)
