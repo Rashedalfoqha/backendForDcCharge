@@ -7,11 +7,12 @@ const {
   updatePost,
   deletePost
 } = require('../controller/postNews');
+const auth = require('../middleware/authentication');
 
-router.post('/create', createPost);
-router.put('/update/:id', updatePost);
+router.post('/create', auth, createPost);
+router.put('/update/:id', auth, updatePost);
 router.get('/all', getAllPosts);
 router.get('/:id', getPostById);
-router.delete('/delete/:id', deletePost);
+router.delete('/delete/:id', auth, deletePost);
 
 module.exports = router;

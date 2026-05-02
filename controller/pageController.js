@@ -76,3 +76,24 @@ exports.createPageContent = async (req, res) => {
   }
 };
 
+
+exports.getAllPages = async (req, res) => {
+  try {
+    const pages = await PageContent.find().select('page language title lastUpdated').sort({ page: 1, language: 1 }).lean();
+    res.json(pages);
+  } catch (error) {
+    console.error("Error fetching all pages:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+exports.deletePageContent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await PageContent.findByIdAndDelete(id);
+    res.json({ message: "Page content deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting page content:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};

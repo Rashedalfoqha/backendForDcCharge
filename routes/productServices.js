@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const upload = require('../middleware/uploadMiddleware');
+const auth = require('../middleware/authentication');
 const {
   createService,
   getAllServices,
@@ -10,7 +11,7 @@ const {
 } = require('../controller/productServices');
 
 // POST /api/services
-router.post('/create', upload.array('images', 5), createService);
+router.post('/create', auth, upload.array('images', 5), createService);
 
 // GET all
 router.get('/all', getAllServices);
@@ -19,9 +20,9 @@ router.get('/all', getAllServices);
 router.get('/all/:id', getServiceById);
 
 // PUT update
-router.put('/update/:id', upload.single('image'), updateService);
+router.put('/update/:id', auth, upload.single('image'), updateService);
 
 // DELETE
-router.delete('/delete/:id', deleteService);
+router.delete('/delete/:id', auth, deleteService);
 
 module.exports = router;

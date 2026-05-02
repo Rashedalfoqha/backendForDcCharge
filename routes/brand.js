@@ -1,19 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('../middleware/authentication');
 const { createBrand,
     getAllBrands,
     deleteBrand,
     updateBrand,
     updateBrandImages }= require('../controller/brand');
 
-router.post('/', createBrand);
-
+router.post('/', auth, createBrand);
 router.get('/', getAllBrands);
-
-router.delete('/:id', deleteBrand);
-
-router.put('/:id', updateBrand);
-
-router.put('/:id/images', updateBrandImages); 
+router.delete('/:id', auth, deleteBrand);
+router.put('/:id', auth, updateBrand);
+router.put('/:id/images', auth, updateBrandImages); 
 
 module.exports = router;
