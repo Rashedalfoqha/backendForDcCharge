@@ -9,6 +9,7 @@ const http = require("http");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const app = express();
+app.set('trust proxy', 1); 
 app.set('etag', 'strong');
 const PORT = process.env.PORT || 5000;
 require("./models/dataBase");
