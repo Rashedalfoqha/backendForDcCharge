@@ -78,6 +78,7 @@ app.use("/role", require("./routes/role"));
 app.use("/brands", require("./routes/brand"));
 app.use("/customers", require("./routes/Customers"));
 app.use("/user", require("./routes/user"));
+app.use("/api/upload", require("./routes/upload"));
 
 app.use((req, res) => res.status(404).json("NO content at this path"));
 app.use((err, req, res, next) => {
