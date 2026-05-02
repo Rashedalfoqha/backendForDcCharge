@@ -2,10 +2,15 @@ const PageContent = require('../models/pageContent');
 
 // Get content by page and language
 exports.getPageContent = async (req, res) => {
-    const { page, lang } = req.params;
-    const content = await PageContent.findOne({ page, language: lang }).lean();
-    if (!content) return res.status(404).json({ message: 'Content not found' });
-    res.json(content);
+    try {
+        const { page, lang } = req.params;
+        const content = await PageContent.findOne({ page, language: lang }).lean();
+        if (!content) return res.status(404).json({ message: 'Content not found' });
+        res.json(content);
+    } catch (error) {
+        console.error("Error fetching page content:", error);
+        res.status(500).json({ error: "Internal server error", message: error.message });
+    }
 };
 
 // Assuming you updated your model to use `sections` instead of `content`
