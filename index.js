@@ -4,6 +4,8 @@ const cors = require("cors");
 const compression = require("compression");
 require("dotenv").config();
 const path = require("path");
+const https = require("https");
+const http = require("http");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const app = express();
@@ -84,4 +86,17 @@ app.use((err, req, res, next) => {
 });
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
+  
+  // Keep-alive logic: Ping the server every 10 minutes
+  const BASE_URL = process.env.BASE_URL;
+  if (BASE_URL) {
+    setInterval(() => {
+      const protocol = BASE_URL.startsWith('https') ? https : http;
+      protocol.get(BASE_URL, (res) => {
+        console.log(`Self-ping successful: Status ${res.statusCode}`);
+      }).on('error', (err) => {
+        console.error(`Self-ping failed: ${err.message}`);
+      });
+    }, 10 * 60 * 1000); // 10 minutes
+  }
 });
