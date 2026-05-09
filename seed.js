@@ -9,6 +9,7 @@ const Subscriber = require('./models/subscribers');
 const Testimonial = require('./models/testimonials');
 const FAQ = require('./models/faq');
 const Partner = require('./models/partners');
+const User = require('./models/userAdmin');
 
 const seedData = async () => {
   try {
@@ -18,11 +19,15 @@ const seedData = async () => {
     await Promise.all([
       PageContent.deleteMany({}), Settings.deleteMany({}), Post.deleteMany({}),
       Message.deleteMany({}), Subscriber.deleteMany({}), Testimonial.deleteMany({}),
-      FAQ.deleteMany({}), Partner.deleteMany({})
+      FAQ.deleteMany({}), Partner.deleteMany({}), User.deleteMany({})
     ]);
 
     // Drop legacy index if it exists to prevent E11000 on slug
     await PageContent.collection.dropIndex('slug_1').catch(() => {});
+
+    // 0. ADMIN USER
+    await User.create({ Email: 'admin@dccharge.jo', password: 'password123' });
+
 
 
     // 1. SETTINGS & ANALYTICS MOCK
