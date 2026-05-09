@@ -2,113 +2,78 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 const PageContent = require('./models/pageContent');
-const Post = require('./models/postNewsSchema');
-const Brand = require('./models/brand');
-const Service = require('./models/productServicesSchema');
-const Charger = require('./models/chargers');
-const Customer = require('./models/Customers');
 const Settings = require('./models/settings');
-const Partner = require('./models/partners');
+const Post = require('./models/postNewsSchema');
+const Message = require('./models/messages');
+const Subscriber = require('./models/subscribers');
 const Testimonial = require('./models/testimonials');
 const FAQ = require('./models/faq');
-const Gallery = require('./models/gallery');
+const Partner = require('./models/partners');
 
 const seedData = async () => {
   try {
-    console.log('Connecting to DB for seeding...');
     await mongoose.connect(process.env.DB_URL);
-    console.log('Connected!');
+    console.log('--- GENERATING MASSIVE PRODUCTION DATASET ---');
 
-    // 1. Settings
-    await Settings.deleteMany({});
+    await Promise.all([
+      PageContent.deleteMany({}), Settings.deleteMany({}), Post.deleteMany({}),
+      Message.deleteMany({}), Subscriber.deleteMany({}), Testimonial.deleteMany({}),
+      FAQ.deleteMany({}), Partner.deleteMany({})
+    ]);
+
+    // 1. SETTINGS & ANALYTICS MOCK
     await Settings.create({
       siteName: 'DC Charge Jordan',
-      logoUrl: 'https://via.placeholder.com/200x80?text=DC+Logo',
-      contactEmail: 'info@dccharge.jo',
-      contactPhone: '+962 79 000 0000',
-      socialLinks: {
-        facebook: 'https://facebook.com/dccharge',
-        instagram: 'https://instagram.com/dccharge',
-        whatsapp: 'https://wa.me/962790000000'
-      }
+      logoUrl: 'https://i.ibb.co/Lz9PcCNs/Whats-App-Image-2025-12-17-at-01-33-54-ac1602cf.jpg',
+      theme: { primaryColor: '#16a34a', secondaryColor: '#1e293b', darkMode: true },
+      mainMenu: [
+        { label: { en: 'Home', ar: 'الرئيسية' }, link: '/', order: 1 },
+        { label: { en: 'Stations', ar: 'المحطات' }, link: '/stations', order: 2 },
+        { label: { en: 'News', ar: 'الأخبار' }, link: '/news', order: 3 },
+        { label: { en: 'Services', ar: 'الخدمات' }, link: '/services', order: 4 }
+      ],
+      contactEmail: 'support@dccharge.jo',
+      socialLinks: { whatsapp: '962790085686', facebook: 'https://fb.com/dccharge' }
     });
 
-    // 2. Partners
-    await Partner.deleteMany({});
-    await Partner.create([
-      { name: 'Tesla', logoUrl: 'https://via.placeholder.com/150?text=Tesla', websiteUrl: 'https://tesla.com', order: 1 },
-      { name: 'ABB', logoUrl: 'https://via.placeholder.com/150?text=ABB', websiteUrl: 'https://abb.com', order: 2 }
+    // 2. 15+ REALISTIC MESSAGES
+    const messages = [];
+    for(let i=1; i<=15; i++) {
+      messages.push({
+        name: `User ${i}`,
+        email: `user${i}@example.com`,
+        subject: i % 2 === 0 ? 'Installation Inquiry' : 'App Support',
+        message: `This is a realistic message ${i} regarding the charging stations. We need more chargers in Irbid.`,
+        isRead: i > 5
+      });
+    }
+    await Message.create(messages);
+
+    // 3. 25+ SUBSCRIBERS
+    const subs = [];
+    for(let i=1; i<=25; i++) {
+      subs.push({ email: `subscriber${i}@domain.jo` });
+    }
+    await Subscriber.create(subs);
+
+    // 4. RICH NEWS POSTS
+    await Post.create([
+      { title: 'Jordan Power Grid Update 2026', body: 'The national grid is now 100% ready for the EV boom.', language: 'en', status: 'published', imageUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7' },
+      { title: 'تحديث شبكة الكهرباء الأردنية 2026', body: 'الشبكة الوطنية الآن جاهزة بنسبة 100٪ لطفرة السيارات الكهربائية.', language: 'ar', status: 'published', imageUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7' }
     ]);
 
-    // 3. FAQs
-    await FAQ.deleteMany({});
-    await FAQ.create([
-      { 
-        question: { en: 'How long does it take to charge?', ar: 'كم يستغرق الشحن؟' },
-        answer: { en: 'It depends on the charger type (AC vs DC).', ar: 'يعتمد ذلك على نوع الشاحن.' },
-        category: 'Charging'
-      }
-    ]);
-
-    // 4. Testimonials
-    await Testimonial.deleteMany({});
-    await Testimonial.create([
-      {
-        name: { en: 'Ahmad Salem', ar: 'أحمد سالم' },
-        position: { en: 'EV Owner', ar: 'مالك سيارة كهربائية' },
-        comment: { en: 'Great service and fast installation!', ar: 'خدمة ممتازة وتركيب سريع!' },
-        rating: 5,
-        imageUrl: 'https://via.placeholder.com/100?text=User'
-      }
-    ]);
-
-    // 5. Page Content (Home)
-    await PageContent.deleteMany({ page: 'home' });
+    // 5. PAGE SECTIONS
     await PageContent.create({
       page: 'home',
-      language: 'en',
-      title: 'Home - DC Charge',
+      slug: '/',
       sections: [
-        {
-          id: 'hero',
-          heading: 'Charge Your EV Anywhere',
-          subheading: 'Reliable charging solutions for Jordan',
-          content: 'Find charging stations, monitor your charge, and pay seamlessly with our mobile app.',
-          buttonText: 'Get Started',
-          image: 'https://via.placeholder.com/800x600?text=Hero+Image'
-        }
+        { id: 'hero', type: 'hero', order: 1, isVisible: true, heading: { en: 'Empowering Future', ar: 'تمكين المستقبل' }, content: { en: 'Seamless charging.', ar: 'شحن سلس.' }, image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7' },
+        { id: 'stats', type: 'stats', order: 2, isVisible: true, items: [{ label: { en: 'Active Users', ar: 'مستخدم نشط' }, value: '24,500' }, { label: { en: 'Revenue', ar: 'الأرباح' }, value: '$120k' }] }
       ]
     });
 
-    // 6. Services
-    await Service.deleteMany({});
-    await Service.create([
-      {
-        language: 'en',
-        title: 'Home Installation',
-        description: 'Professional installation of home EV chargers with warranty.',
-        imageUrl: ['https://via.placeholder.com/400x300?text=Home+Install']
-      }
-    ]);
-
-    // 7. Chargers
-    await Charger.deleteMany({});
-    await Charger.create([
-      {
-        language: 'en',
-        mainTitle: 'DC Fast Chargers',
-        title: '60kW Rapid Charger',
-        description: 'Ultra-fast charging for commercial locations.',
-        imageUrl: ['https://via.placeholder.com/400x300?text=Charger+60kW']
-      }
-    ]);
-
-    console.log('Seeding completed successfully!');
+    console.log('--- MASSIVE SEEDING SUCCESSFUL 🔥🚀 ---');
     process.exit(0);
-  } catch (error) {
-    console.error('Seeding failed:', error);
-    process.exit(1);
-  }
+  } catch (err) { console.error(err); process.exit(1); }
 };
-
 seedData();

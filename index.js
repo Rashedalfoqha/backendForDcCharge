@@ -97,12 +97,14 @@ app.use("/api/faq", require("./routes/faq"));
 app.use("/api/messages", require("./routes/messages"));
 app.use("/api/subscribers", require("./routes/subscribers"));
 app.use("/api/gallery", require("./routes/gallery"));
+app.use("/api/dashboard", require("./routes/dashboard"));
+app.use("/api/health", require("./routes/health"));
+
+
 
 app.use((req, res) => res.status(404).json("NO content at this path"));
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: "Internal server error" });
-});
+app.use(require("./middleware/error_handler"));
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
   
