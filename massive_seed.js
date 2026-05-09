@@ -47,7 +47,14 @@ const seedMassiveData = async () => {
       logoUrl: 'https://i.ibb.co/Lz9PcCNs/Whats-App-Image-2025-12-17-at-01-33-54-ac1602cf.jpg',
       theme: { primaryColor: '#10b981', secondaryColor: '#0f172a', darkMode: true },
       contactEmail: 'hq@dccharge.jo',
-      socialLinks: { whatsapp: '962790000000', facebook: 'https://fb.com/dccharge' }
+      socialLinks: { whatsapp: '962790000000', facebook: 'https://fb.com/dccharge' },
+      mainMenu: [
+        { label: { en: 'Home', ar: 'الرئيسية' }, link: '/', order: 1 },
+        { label: { en: 'Services', ar: 'الخدمات' }, link: '/products-and-services', order: 2 },
+        { label: { en: 'About', ar: 'من نحن' }, link: '/about', order: 3 },
+        { label: { en: 'Contact', ar: 'اتصل بنا' }, link: '/contact', order: 4 }
+      ]
+
     });
 
     // 3. 50+ REALISTIC TRANSACTIONS (Last 30 days)
@@ -149,6 +156,51 @@ const seedMassiveData = async () => {
       { language: 'en', mainTitle: 'DC Fast Charger', title: '150kW Ultra Speed', description: 'Dual connectors, CCS2 standard.', imageUrl: ['https://images.unsplash.com/photo-1620216533935-1f9e99279471'] },
       { language: 'ar', mainTitle: 'شاحن سريع DC', title: '150 كيلووات سرعة فائقة', description: 'موصلات مزدوجة، معيار CCS2.', imageUrl: ['https://images.unsplash.com/photo-1620216533935-1f9e99279471'] }
     ]);
+
+    // 11. PAGE CONTENT (CRITICAL FOR FRONTEND)
+    const pages = [
+      {
+        page: 'home',
+        language: 'en',
+        slug: 'home-en',
+        title: 'Leading EV Charging Solutions',
+        sections: [
+          { id: 'hero', type: 'hero', heading: 'The Future of EV Charging is Here', content: 'We provide the fastest, most reliable charging network in the Middle East.', ctaText: 'Join the Revolution', image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7' },
+          { id: 'stats', type: 'stats', heading: 'Our Growth', features: [{ name: 'Stations', value: 120 }, { name: 'Happy Clients', value: 5000 }, { name: 'Energy Saved', value: 95000 }] }
+        ]
+      },
+      {
+        page: 'home',
+        language: 'ar',
+        slug: 'home-ar',
+        title: 'حلول شحن المركبات الكهربائية الرائدة',
+        sections: [
+          { id: 'hero', type: 'hero', heading: 'مستقبل شحن السيارات الكهربائية هنا', content: 'نحن نوفر شبكة الشحن الأسرع والأكثر موثوقية في الشرق الأوسط.', ctaText: 'انضم إلى الثورة', image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7' },
+          { id: 'stats', type: 'stats', heading: 'نمونا', features: [{ name: 'محطات', value: 120 }, { name: 'عملاء سعداء', value: 5000 }, { name: 'طاقة موفرة', value: 95000 }] }
+        ]
+      },
+      {
+        page: 'installation-services',
+        language: 'en',
+        slug: 'installation-services-en',
+        title: 'Professional Installation Services',
+        sections: [
+          { id: 'main', type: 'services', heading: 'Home & Business Setup', content: 'Our certified technicians ensure a seamless installation experience.', image: ['https://images.unsplash.com/photo-1563986768609-322da13575f3'] }
+        ]
+      },
+      {
+        page: 'installation-services',
+        language: 'ar',
+        slug: 'installation-services-ar',
+        title: 'خدمات التركيب الاحترافية',
+        sections: [
+          { id: 'main', type: 'services', heading: 'تجهيزات المنازل والأعمال', content: 'يضمن فنيونا المعتمدون تجربة تركيب سلسة.', image: ['https://images.unsplash.com/photo-1563986768609-322da13575f3'] }
+        ]
+      }
+    ];
+    await PageContent.insertMany(pages);
+
+
 
     console.log('--- ✅ MASSIVE SEEDING SUCCESSFUL! YOUR DASHBOARD IS NOW ALIVE 🔥 ---');
     process.exit(0);
