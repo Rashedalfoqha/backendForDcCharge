@@ -11,7 +11,7 @@ const {
 } = require('../controller/productServices');
 
 // POST /api/services
-router.post('/create', auth, upload.array('images', 5), createService);
+router.post('/create', auth, createService);
 
 // GET all
 router.get('/all', getAllServices);
@@ -20,7 +20,7 @@ router.get('/all', getAllServices);
 router.get('/all/:id', getServiceById);
 
 // PUT update
-router.put('/update/:id', auth, upload.single('image'), updateService);
+router.put('/update/:id', auth, updateService);
 
 // DELETE
 router.delete('/delete/:id', auth, deleteService);

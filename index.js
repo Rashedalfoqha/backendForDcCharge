@@ -88,7 +88,15 @@ app.use("/role", require("./routes/role"));
 app.use("/brands", require("./routes/brand"));
 app.use("/customers", require("./routes/Customers"));
 app.use("/user", require("./routes/user"));
+app.use("/api/chargers", require("./routes/chargers"));
 app.use("/api/upload", require("./routes/upload"));
+app.use("/api/settings", require("./routes/settings"));
+app.use("/api/partners", require("./routes/partners"));
+app.use("/api/testimonials", require("./routes/testimonials"));
+app.use("/api/faq", require("./routes/faq"));
+app.use("/api/messages", require("./routes/messages"));
+app.use("/api/subscribers", require("./routes/subscribers"));
+app.use("/api/gallery", require("./routes/gallery"));
 
 app.use((req, res) => res.status(404).json("NO content at this path"));
 app.use((err, req, res, next) => {
