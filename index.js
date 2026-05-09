@@ -14,8 +14,16 @@ app.set('etag', 'strong');
 const PORT = process.env.PORT || 5000;
 require("./models/dataBase");
 
-app.use(cors());
-app.use(express.json({ limit: '1mb' }));
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  credentials: true
+}));
+app.options('*any', cors()); 
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
   contentSecurityPolicy: {

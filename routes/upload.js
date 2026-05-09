@@ -6,14 +6,16 @@ const fs = require('fs');
 const auth = require('../middleware/authentication');
 
 // Ensure uploads directory exists
-const uploadDir = 'uploads/';
+const uploadDir = path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+  fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 // Configure Storage
 const storage = multer.diskStorage({
-  destination: 'uploads/',
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
   filename: (req, file, cb) => {
     cb(null, `img-${Date.now()}${path.extname(file.originalname)}`);
   }

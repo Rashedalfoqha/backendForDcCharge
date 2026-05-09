@@ -22,191 +22,82 @@ const Service = require('./models/productServicesSchema');
 const seedMassiveData = async () => {
   try {
     await mongoose.connect(process.env.DB_URL);
-    console.log('--- 🚀 GENERATING ENTERPRISE-GRADE PRODUCTION DATASET 🚀 ---');
+    console.log('--- 🚀 GENERATING PREMIUM DATASET WITH LOCAL ASSETS 🚀 ---');
 
-    // Clean existing data
     const models = [
       PageContent, Settings, Post, Message, Subscriber, Testimonial, FAQ, Partner,
       User, Transaction, Invoice, Subscription, Notification, ActivityLog, Customer, Charger, Service
     ];
     await Promise.all(models.map(m => m.deleteMany({})));
 
-    console.log('CLEANED ALL TABLES. STARTING SEEDING...');
+    await User.create([{ Email: 'admin@dccharge.jo', password: 'password123' }]);
 
-    // 1. ADMINS & ROLES
-    const admins = await User.create([
-      { Email: 'admin@dccharge.jo', password: 'password123' }, // Roles aren't fully implemented in model, but we seed anyway
-      { Email: 'moderator@dccharge.jo', password: 'password123' },
-      { Email: 'support@dccharge.jo', password: 'password123' }
-    ]);
-    const adminId = admins[0]._id;
-
-    // 2. SETTINGS
     await Settings.create({
-      siteName: 'DC Charge Middle East',
+      siteName: 'EV Solution JO',
       logoUrl: 'https://i.ibb.co/Lz9PcCNs/Whats-App-Image-2025-12-17-at-01-33-54-ac1602cf.jpg',
       theme: { primaryColor: '#10b981', secondaryColor: '#0f172a', darkMode: true },
       contactEmail: 'hq@dccharge.jo',
-      socialLinks: { whatsapp: '962790000000', facebook: 'https://fb.com/dccharge' },
-      mainMenu: [
-        { label: { en: 'Home', ar: 'الرئيسية' }, link: '/', order: 1 },
-        { label: { en: 'Services', ar: 'الخدمات' }, link: '/products-and-services', order: 2 },
-        { label: { en: 'About', ar: 'من نحن' }, link: '/about', order: 3 },
-        { label: { en: 'Contact', ar: 'اتصل بنا' }, link: '/contact', order: 4 }
-      ]
-
+      socialLinks: { 
+        whatsapp: '962790085686', 
+        facebook: 'https://www.facebook.com/EVSolutionJo',
+        youtube: 'https://www.youtube.com/@EVSolutionJo',
+        instagram: 'https://www.instagram.com/EVSolutionJo',
+        linkedin: 'https://www.linkedin.com/company/evsolutionjo'
+      }
     });
 
-    // 3. 50+ REALISTIC TRANSACTIONS (Last 30 days)
-    const transactions = [];
-    const paymentMethods = ['credit_card', 'paypal', 'apple_pay', 'bank_transfer'];
-    const statuses = ['completed', 'completed', 'completed', 'failed', 'pending'];
-    const types = ['charging', 'subscription', 'hardware', 'service'];
-
-    for(let i=0; i<100; i++) {
-        const date = new Date();
-        date.setDate(date.getDate() - Math.floor(Math.random() * 30));
-        transactions.push({
-            amount: Math.floor(Math.random() * 500) + 10,
-            currency: 'JOD',
-            status: statuses[Math.floor(Math.random() * statuses.length)],
-            type: types[Math.floor(Math.random() * types.length)],
-            paymentMethod: paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
-            description: `Transaction ${i+1} for EV Charging services`,
-            reference: `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-            createdAt: date
-        });
+    const newsData = [];
+    for(let i=1; i<=10; i++) {
+      newsData.push({
+        title: i === 1 ? 'Massive Expansion of Charging Network' : `EV Market Update Q${(i%4)+1} - 2024`,
+        body: 'EV Solution JO is proud to announce the installation of 20 new ultra-fast DC charging stations across the desert highway, connecting Amman to Aqaba seamlessly.',
+        language: i % 2 === 0 ? 'ar' : 'en',
+        status: 'published',
+        imageUrl: '/assets/hero.png', // Use our high-quality asset
+        publishedDate: new Date(Date.now() - i * 86400000)
+      });
     }
-    await Transaction.insertMany(transactions);
+    await Post.insertMany(newsData);
 
-    // 4. 20+ INVOICES
-    const invoices = [];
-    for(let i=0; i<40; i++) {
-        const amount = Math.floor(Math.random() * 1000) + 50;
-        invoices.push({
-            invoiceNumber: `INV-2026-${1000 + i}`,
-            amount: amount,
-            tax: amount * 0.16,
-            total: amount * 1.16,
-            status: i % 5 === 0 ? 'unpaid' : 'paid',
-            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-            items: [{ description: 'Monthly Subscription', quantity: 1, price: amount }]
-        });
-    }
-    await Invoice.insertMany(invoices);
-
-    // 5. SUBSCRIPTIONS
-    const subs = [];
-    const plans = ['basic', 'premium', 'enterprise'];
-    for(let i=0; i<50; i++) {
-        subs.push({
-            plan: plans[Math.floor(Math.random() * plans.length)],
-            status: i % 10 === 0 ? 'expired' : 'active',
-            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-        });
-    }
-    await Subscription.insertMany(subs);
-
-    // 6. NOTIFICATIONS
-    const notifs = [
-      { title: 'New Customer Registered', message: 'A new user from Amman just joined the platform.', type: 'success' },
-      { title: 'System Update Scheduled', message: 'Maintenance scheduled for Sunday at 2:00 AM.', type: 'info' },
-      { title: 'Payment Failed', message: 'Invoice #INV-2026-1045 payment was declined.', type: 'error' },
-      { title: 'Low Charger Capacity', message: 'Station #7 in Irbid is reporting low power throughput.', type: 'warning' }
-    ];
-    await Notification.insertMany(notifs);
-
-    // 7. ACTIVITY LOGS
-    const activities = [
-      { adminId, action: 'LOGIN', module: 'AUTH', details: 'Admin logged in from IP 192.168.1.1' },
-      { adminId, action: 'UPDATE_SETTINGS', module: 'SETTINGS', details: 'Primary color changed to Emerald 500' },
-      { adminId, action: 'DELETE_POST', module: 'NEWS', details: 'Draft post #45 removed' },
-      { adminId, action: 'EXPORT_DATA', module: 'REPORTS', details: 'Financial report for Q1 2026 exported' }
-    ];
-    await ActivityLog.insertMany(activities);
-
-    // 8. MESSAGES & SUBSCRIBERS
-    const messages = [];
-    for(let i=0; i<30; i++) {
-        messages.push({
-            name: `Client ${i}`,
-            email: `client${i}@example.com`,
-            subject: i % 3 === 0 ? 'Technical Issue' : 'Business Inquiry',
-            message: 'I am interested in installing 5 DC fast chargers at my mall in Aqaba. Please send a quote.',
-            isRead: i > 10
-        });
-    }
-  await Message.insertMany(messages);
-
-    const newsletters = [];
-    for(let i=0; i<150; i++) {
-        newsletters.push({ email: `user_${i}@jordan-mail.com` });
-    }
-    await Subscriber.insertMany(newsletters);
-
-    // 9. NEWS POSTS (Rich content)
-    await Post.create([
-      { title: 'Expanding Fast Charging Network to Aqaba', body: 'We are proud to announce 10 new 150kW chargers in Aqaba city center.', language: 'en', status: 'published', imageUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7' },
-      { title: 'توسيع شبكة الشحن السريع إلى العقبة', body: 'نفخر بالإعلان عن 10 شواحن سريعة جديدة بقدرة 150 كيلووات في وسط مدينة العقبة.', language: 'ar', status: 'published', imageUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7' },
-      { title: 'EV Sales in Jordan Reach Record Highs', body: 'Over 40% of new car registrations in 2026 are electric vehicles.', language: 'en', status: 'published', imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3' }
-    ]);
-
-    // 10. CHARGERS & SERVICES
-    await Charger.create([
-      { language: 'en', mainTitle: 'DC Fast Charger', title: '150kW Ultra Speed', description: 'Dual connectors, CCS2 standard.', imageUrl: ['https://images.unsplash.com/photo-1620216533935-1f9e99279471'] },
-      { language: 'ar', mainTitle: 'شاحن سريع DC', title: '150 كيلووات سرعة فائقة', description: 'موصلات مزدوجة، معيار CCS2.', imageUrl: ['https://images.unsplash.com/photo-1620216533935-1f9e99279471'] }
-    ]);
-
-    // 11. PAGE CONTENT (CRITICAL FOR FRONTEND)
     const pages = [
       {
-        page: 'home',
-        language: 'en',
-        slug: 'home-en',
-        title: 'Leading EV Charging Solutions',
+        page: 'home', language: 'en', slug: 'home-en', title: 'Leading EV Solutions',
         sections: [
-          { id: 'hero', type: 'hero', heading: 'The Future of EV Charging is Here', content: 'We provide the fastest, most reliable charging network in the Middle East.', ctaText: 'Join the Revolution', image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7' },
-          { id: 'stats', type: 'stats', heading: 'Our Growth', features: [{ name: 'Stations', value: 120 }, { name: 'Happy Clients', value: 5000 }, { name: 'Energy Saved', value: 95000 }] }
+          { id: 'hero', type: 'hero', heading: 'The Future of EV Charging', content: ['Empowering Jordan with high-speed sustainable energy.'], image: '/assets/hero.png' },
+          { id: 'stats', type: 'stats', heading: 'Impact', features: [{ name: 'Stations', value: 150 }, { name: 'Active Users', value: 12000 }] },
+          { id: 'Our Story & Vision', type: 'story', heading: 'Vision 2030', content: ['Creating a green transportation ecosystem.'], image: '/assets/about.png' },
+          { id: 'Why Choose Us?', type: 'features', heading: 'Why Us?', content: ['Certified expertise and 24/7 support.'], image: '/assets/hero.png' }
         ]
       },
       {
-        page: 'home',
-        language: 'ar',
-        slug: 'home-ar',
-        title: 'حلول شحن المركبات الكهربائية الرائدة',
+        page: 'home', language: 'ar', slug: 'home-ar', title: 'حلول شحن المركبات',
         sections: [
-          { id: 'hero', type: 'hero', heading: 'مستقبل شحن السيارات الكهربائية هنا', content: 'نحن نوفر شبكة الشحن الأسرع والأكثر موثوقية في الشرق الأوسط.', ctaText: 'انضم إلى الثورة', image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7' },
-          { id: 'stats', type: 'stats', heading: 'نمونا', features: [{ name: 'محطات', value: 120 }, { name: 'عملاء سعداء', value: 5000 }, { name: 'طاقة موفرة', value: 95000 }] }
-        ]
-      },
-      {
-        page: 'installation-services',
-        language: 'en',
-        slug: 'installation-services-en',
-        title: 'Professional Installation Services',
-        sections: [
-          { id: 'main', type: 'services', heading: 'Home & Business Setup', content: 'Our certified technicians ensure a seamless installation experience.', image: ['https://images.unsplash.com/photo-1563986768609-322da13575f3'] }
-        ]
-      },
-      {
-        page: 'installation-services',
-        language: 'ar',
-        slug: 'installation-services-ar',
-        title: 'خدمات التركيب الاحترافية',
-        sections: [
-          { id: 'main', type: 'services', heading: 'تجهيزات المنازل والأعمال', content: 'يضمن فنيونا المعتمدون تجربة تركيب سلسة.', image: ['https://images.unsplash.com/photo-1563986768609-322da13575f3'] }
+          { id: 'hero', type: 'hero', heading: 'مستقبل شحن السيارات', content: ['تمكين الأردن بالطاقة المستدامة عالية السرعة.'], image: '/assets/hero.png' },
+          { id: 'stats', type: 'stats', heading: 'تأثيرنا', features: [{ name: 'محطة', value: 150 }, { name: 'مستخدم', value: 12000 }] },
+          { id: 'Our Story & Vision', type: 'story', heading: 'رؤية 2030', content: ['إنشاء نظام نقل أخضر.'], image: '/assets/about.png' },
+          { id: 'Why Choose Us?', type: 'features', heading: 'لماذا نحن؟', content: ['خبرة معتمدة ودعم متواصل.'], image: '/assets/hero.png' }
         ]
       }
     ];
+
+    const otherSlugs = ['about-2', 'installation-services', 'products-and-services', 'exp-consulting-services-for-charging-stations', 'dc-chargers', 'ev-chargers-repair', 'ac-chargers'];
+    for(const slug of otherSlugs) {
+        pages.push({
+            page: slug, language: 'en', slug: `${slug}-en`, title: slug.toUpperCase(),
+            sections: [{ id: 'hero', heading: `Expert ${slug}`, content: ['Excellence in every detail.'], image: '/assets/about.png' }]
+        });
+        pages.push({
+            page: slug, language: 'ar', slug: `${slug}-ar`, title: `خدمة ${slug}`,
+            sections: [{ id: 'hero', heading: `خبرة في ${slug}`, content: ['التميز في كل التفاصيل.'], image: '/assets/about.png' }]
+        });
+    }
+
     await PageContent.insertMany(pages);
-
-
-
-    console.log('--- ✅ MASSIVE SEEDING SUCCESSFUL! YOUR DASHBOARD IS NOW ALIVE 🔥 ---');
+    console.log(`--- ✅ SEEDED ALL DATA WITH LOCAL ASSETS ✅ ---`);
     process.exit(0);
-  } catch (err) { 
-    console.error('❌ SEEDING FAILED:', err); 
-    process.exit(1); 
+  } catch (err) {
+    console.error('❌ SEEDING FAILED:', err);
+    process.exit(1);
   }
 };
 

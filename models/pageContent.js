@@ -16,12 +16,14 @@ const pageSchema = new mongoose.Schema({
   page: { type: String, required: true }, // e.g., 'home'
   language: { type: String, required: true }, // e.g., 'en'
   slug: { type: String, required: true },
+
   title: { type: String },
   sections: [sectionSchema],
   lastUpdated: { type: Date, default: Date.now }
 }, { timestamps: true });
 
-// Ensure unique combination of page and language
+// Ensure unique combination of slug and language
+pageSchema.index({ slug: 1, language: 1 }, { unique: true });
 pageSchema.index({ page: 1, language: 1 }, { unique: true });
 
 module.exports = mongoose.model('PageContent', pageSchema);

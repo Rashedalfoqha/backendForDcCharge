@@ -21,6 +21,10 @@ const seedData = async () => {
       FAQ.deleteMany({}), Partner.deleteMany({})
     ]);
 
+    // Drop legacy index if it exists to prevent E11000 on slug
+    await PageContent.collection.dropIndex('slug_1').catch(() => {});
+
+
     // 1. SETTINGS & ANALYTICS MOCK
     await Settings.create({
       siteName: 'DC Charge Jordan',
@@ -63,14 +67,28 @@ const seedData = async () => {
     ]);
 
     // 5. PAGE SECTIONS
-    await PageContent.create({
-      page: 'home',
-      slug: '/',
-      sections: [
-        { id: 'hero', type: 'hero', order: 1, isVisible: true, heading: { en: 'Empowering Future', ar: 'تمكين المستقبل' }, content: { en: 'Seamless charging.', ar: 'شحن سلس.' }, image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7' },
-        { id: 'stats', type: 'stats', order: 2, isVisible: true, items: [{ label: { en: 'Active Users', ar: 'مستخدم نشط' }, value: '24,500' }, { label: { en: 'Revenue', ar: 'الأرباح' }, value: '$120k' }] }
-      ]
-    });
+    await PageContent.create([
+      {
+        page: 'home',
+        language: 'en',
+        slug: '/',
+        title: 'Home Page',
+        sections: [
+          { id: 'hero', type: 'hero', order: 1, isVisible: true, heading: 'Empowering Future', content: 'Seamless charging.', image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7' },
+          { id: 'stats', type: 'stats', order: 2, isVisible: true, items: [{ label: 'Active Users', value: '24,500' }, { label: 'Revenue', value: '$120k' }] }
+        ]
+      },
+      {
+        page: 'home',
+        language: 'ar',
+        slug: '/',
+        title: 'الرئيسية',
+        sections: [
+          { id: 'hero', type: 'hero', order: 1, isVisible: true, heading: 'تمكين المستقبل', content: 'شحن سلس.', image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7' },
+          { id: 'stats', type: 'stats', order: 2, isVisible: true, items: [{ label: 'مستخدم نشط', value: '24,500' }, { label: 'الأرباح', value: '$120k' }] }
+        ]
+      }
+    ]);
 
     console.log('--- MASSIVE SEEDING SUCCESSFUL 🔥🚀 ---');
     process.exit(0);
